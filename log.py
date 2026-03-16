@@ -4,13 +4,12 @@ from datetime import datetime
 from pathlib import Path
 
 CONFIG_FILE = Path.home() / ".quicklog.json"
-DEFAULT_DIR = Path("/Users/sebas/Documents/obsidian_default/45 - Quicklog")
 
 
 def load_config():
     if CONFIG_FILE.exists():
         return json.loads(CONFIG_FILE.read_text())
-    return {"log_dir": str(DEFAULT_DIR)}
+    return None
 
 
 def save_config(config):
@@ -33,6 +32,18 @@ def settings(config):
 
 
 config = load_config()
+if config is None:
+    print("First run! Enter the directory where notes will be saved:")
+    try:
+        initial_dir = input("> ").strip()
+    except (KeyboardInterrupt, EOFError):
+        raise SystemExit
+    path = Path(initial_dir).expanduser()
+    path.mkdir(parents=True, exist_ok=True)
+    config = {"log_dir": str(path)}
+    save_config(config)
+    print(f"Saved: {config['log_dir']}")
+
 log_dir = Path(config["log_dir"])
 log_dir.mkdir(parents=True, exist_ok=True)
 
