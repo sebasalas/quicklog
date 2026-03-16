@@ -12,6 +12,12 @@ def load_config():
     return None
 
 
+def strip_quotes(s):
+    if len(s) >= 2 and s[0] in ('"', "'") and s[-1] == s[0]:
+        return s[1:-1]
+    return s
+
+
 def save_config(config):
     CONFIG_FILE.write_text(json.dumps(config, indent=2))
 
@@ -23,7 +29,7 @@ def settings(config):
     except (KeyboardInterrupt, EOFError):
         return config
     if new_dir:
-        path = Path(new_dir).expanduser()
+        path = Path(strip_quotes(new_dir)).expanduser()
         path.mkdir(parents=True, exist_ok=True)
         config["log_dir"] = str(path)
         save_config(config)
@@ -38,7 +44,7 @@ if config is None:
         initial_dir = input("> ").strip()
     except (KeyboardInterrupt, EOFError):
         raise SystemExit
-    path = Path(initial_dir).expanduser()
+    path = Path(strip_quotes(initial_dir)).expanduser()
     path.mkdir(parents=True, exist_ok=True)
     config = {"log_dir": str(path)}
     save_config(config)
