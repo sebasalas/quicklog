@@ -140,6 +140,9 @@ if config is None:
 log_dir = Path(config["log_dir"])
 log_dir.mkdir(parents=True, exist_ok=True)
 
+print("Type /help for commands.")
+print()
+
 while True:
     try:
         text = input("> ")
@@ -178,3 +181,5 @@ while True:
     line = now.strftime("%H:%M:%S") + " " + text
     with open(filename, "a") as f:
         f.write(line + "\n\n")
+    print("Saved.")
+    print()
