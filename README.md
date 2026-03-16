@@ -26,7 +26,9 @@ log
 
 | Command | Description |
 |---|---|
-| `/show` | Show today's notes |
+| `/show [date]` | Show notes. Date: `today`, `yesterday`, or `YYYY-MM-DD` |
+| `/list` | List all days with notes |
+| `/m` | Multiline mode — write lines, empty line to save |
 | `/where` | Display current notes location |
 | `/settings` | Change the notes directory |
 | `/help` | Show available commands |

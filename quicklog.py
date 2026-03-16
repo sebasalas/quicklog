@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 CONFIG_FILE = Path.home() / ".quicklog.json"
@@ -23,19 +23,50 @@ def save_config(config):
 
 
 def help():
-    print("/show      Show today's notes")
-    print("/where     Display current notes location")
-    print("/settings  Change the notes directory")
-    print("/help      Show this help")
-    print("Ctrl+C     Exit")
+    print("/show [date]  Show notes (date: today, yesterday, YYYY-MM-DD)")
+    print("/list         List all days with notes")
+    print("/where        Display current notes location")
+    print("/settings     Change the notes directory")
+    print("/help         Show this help")
+    print("Ctrl+C        Exit")
+    print("(empty line to save multiline note)")
 
 
-def show(log_dir):
-    filename = log_dir / datetime.now().strftime("quicklog_%Y%m%d.md")
+def parse_date(arg):
+    if not arg or arg == "today":
+        return datetime.now()
+    if arg == "yesterday":
+        return datetime.now() - timedelta(days=1)
+    try:
+        return datetime.strptime(arg, "%Y-%m-%d")
+    except ValueError:
+        return None
+
+
+def show(log_dir, arg=""):
+    date = parse_date(arg.strip())
+    if date is None:
+        print(f"Invalid date: {arg}. Use today, yesterday, or YYYY-MM-DD.")
+        return
+    filename = log_dir / date.strftime("quicklog_%Y%m%d.md")
     if not filename.exists():
-        print("No notes today.")
+        print(f"No notes for {date.strftime('%Y-%m-%d')}.")
     else:
         print(filename.read_text())
+
+
+def list_notes(log_dir):
+    files = sorted(log_dir.glob("quicklog_*.md"))
+    if not files:
+        print("No notes found.")
+        return
+    for f in files:
+        date_str = f.stem.replace("quicklog_", "")
+        try:
+            date = datetime.strptime(date_str, "%Y%m%d")
+            print(date.strftime("%Y-%m-%d"))
+        except ValueError:
+            print(f.name)
 
 
 def settings(config):
@@ -51,6 +82,19 @@ def settings(config):
         save_config(config)
         print(f"Saved: {config['log_dir']}")
     return config
+
+
+def read_multiline():
+    lines = []
+    while True:
+        try:
+            line = input("  ")
+        except (KeyboardInterrupt, EOFError):
+            return None
+        if line == "":
+            break
+        lines.append(line)
+    return "\n".join(lines) if lines else None
 
 
 config = load_config()
@@ -74,21 +118,31 @@ while True:
         text = input("> ")
     except (KeyboardInterrupt, EOFError):
         break
-    if not text.strip():
+    cmd = text.strip()
+    if not cmd:
         continue
-    if text.strip() == "/help":
+    if cmd == "/help":
         help()
         continue
-    if text.strip() == "/where":
+    if cmd == "/where":
         print(log_dir)
         continue
-    if text.strip() == "/show":
-        show(log_dir)
+    if cmd.startswith("/show"):
+        arg = cmd[5:].strip()
+        show(log_dir, arg)
         continue
-    if text.strip() == "/settings":
+    if cmd == "/list":
+        list_notes(log_dir)
+        continue
+    if cmd == "/settings":
         config = settings(config)
         log_dir = Path(config["log_dir"])
         continue
+    if cmd == "/m":
+        note = read_multiline()
+        if not note:
+            continue
+        text = note
     now = datetime.now()
     filename = log_dir / now.strftime("quicklog_%Y%m%d.md")
     line = now.strftime("%H:%M:%S") + " " + text
