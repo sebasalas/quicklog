@@ -52,7 +52,13 @@ def show(log_dir, arg=""):
     if not filename.exists():
         print(f"No notes for {date.strftime('%Y-%m-%d')}.")
     else:
-        print(filename.read_text())
+        entries = filename.read_text().strip().split("\n\n")
+        print()
+        for entry in entries:
+            if entry.strip():
+                print(entry.strip())
+                print("─" * 40)
+        print()
 
 
 def list_notes(log_dir):
