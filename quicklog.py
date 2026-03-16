@@ -25,6 +25,7 @@ def save_config(config):
 def help():
     print("/show [date]  Show notes (date: today, yesterday, YYYY-MM-DD)")
     print("/list         List all days with notes")
+    print("/delete       Delete last entry of today")
     print("/where        Display current notes location")
     print("/settings     Change the notes directory")
     print("/help         Show this help")
@@ -59,6 +60,26 @@ def show(log_dir, arg=""):
                 print(entry.strip())
                 print("─" * 40)
         print()
+
+
+def delete_last(log_dir):
+    filename = log_dir / datetime.now().strftime("quicklog_%Y%m%d.md")
+    if not filename.exists():
+        print("No notes today.")
+        return
+    entries = [e for e in filename.read_text().split("\n\n") if e.strip()]
+    if not entries:
+        print("No notes today.")
+        return
+    print(f"Delete this entry?\n\n  {entries[-1].strip()}\n\n[y/N] ", end="")
+    try:
+        confirm = input().strip().lower()
+    except (KeyboardInterrupt, EOFError):
+        print()
+        return
+    if confirm == "y":
+        filename.write_text("\n\n".join(entries[:-1]) + ("\n\n" if len(entries) > 1 else ""))
+        print("Deleted.")
 
 
 def list_notes(log_dir):
@@ -136,6 +157,9 @@ while True:
     if cmd.startswith("/show"):
         arg = cmd[5:].strip()
         show(log_dir, arg)
+        continue
+    if cmd == "/delete":
+        delete_last(log_dir)
         continue
     if cmd == "/list":
         list_notes(log_dir)
