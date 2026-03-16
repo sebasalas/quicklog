@@ -28,6 +28,7 @@ log
 |---|---|
 | `/show [date]` | Show notes. Date: `today`, `yesterday`, or `YYYY-MM-DD` |
 | `/list` | List all days with notes |
+| `/delete` | Delete last entry of today (asks for confirmation) |
 | `/m` | Multiline mode — write lines, empty line to save |
 | `/where` | Display current notes location |
 | `/settings` | Change the notes directory |
