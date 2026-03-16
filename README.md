@@ -6,11 +6,13 @@ Minimal CLI tool for quick timestamped notes. Each entry is saved with a timesta
 
 ```bash
 # Add alias to ~/.zshrc
-alias log='python3 /path/to/log.py'
+alias log='python3 /path/to/quicklog.py'
 
 # Reload shell
 source ~/.zshrc
 ```
+
+On first run, you will be prompted to enter the directory where notes will be saved.
 
 ## Usage
 
@@ -20,13 +22,14 @@ log
 > another note
 ```
 
-Notes are saved to the configured directory. Default: `~/Documents/obsidian_default/45 - Quicklog`.
-
 ## Commands
 
 | Command | Description |
 |---|---|
+| `/show` | Show today's notes |
+| `/where` | Display current notes location |
 | `/settings` | Change the notes directory |
+| `/help` | Show available commands |
 | `Ctrl+C` | Exit |
 
 ## Config
