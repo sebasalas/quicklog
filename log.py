@@ -22,6 +22,22 @@ def save_config(config):
     CONFIG_FILE.write_text(json.dumps(config, indent=2))
 
 
+def help():
+    print("/show      Show today's notes")
+    print("/where     Display current notes location")
+    print("/settings  Change the notes directory")
+    print("/help      Show this help")
+    print("Ctrl+C     Exit")
+
+
+def show(log_dir):
+    filename = log_dir / datetime.now().strftime("quicklog_%Y%m%d.md")
+    if not filename.exists():
+        print("No notes today.")
+    else:
+        print(filename.read_text())
+
+
 def settings(config):
     print(f"Current log dir: {config['log_dir']}")
     try:
@@ -53,14 +69,21 @@ if config is None:
 log_dir = Path(config["log_dir"])
 log_dir.mkdir(parents=True, exist_ok=True)
 
-print("Type your note and press Enter. /settings to configure. Ctrl+C to exit.")
-
 while True:
     try:
         text = input("> ")
     except (KeyboardInterrupt, EOFError):
         break
     if not text.strip():
+        continue
+    if text.strip() == "/help":
+        help()
+        continue
+    if text.strip() == "/where":
+        print(log_dir)
+        continue
+    if text.strip() == "/show":
+        show(log_dir)
         continue
     if text.strip() == "/settings":
         config = settings(config)
