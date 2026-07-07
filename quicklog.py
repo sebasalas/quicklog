@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+import readline  # noqa: F401 — enables cursor movement and history for input()
 from datetime import datetime, timedelta
 from pathlib import Path
 
