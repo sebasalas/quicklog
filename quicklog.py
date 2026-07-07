@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import json
 import readline  # noqa: F401 — enables cursor movement and history for input()
+import shutil
+import textwrap
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -45,6 +47,26 @@ def parse_date(arg):
         return None
 
 
+def format_entry(entry, indent):
+    # Wrap to terminal width so soft-wrapped lines also align under the text.
+    width = max(shutil.get_terminal_size((80, 20)).columns, len(indent) + 20)
+    lines = entry.split("\n")
+    wrapped = [
+        textwrap.fill(
+            lines[0], width=width, subsequent_indent=indent,
+            break_long_words=False, break_on_hyphens=False,
+        )
+    ]
+    for line in lines[1:]:
+        wrapped.append(
+            textwrap.fill(
+                line, width=width, initial_indent=indent, subsequent_indent=indent,
+                break_long_words=False, break_on_hyphens=False,
+            )
+        )
+    return "\n".join(wrapped)
+
+
 def show(log_dir, arg=""):
     date = parse_date(arg.strip())
     if date is None:
@@ -55,10 +77,12 @@ def show(log_dir, arg=""):
         print(f"No notes for {date.strftime('%Y-%m-%d')}.")
     else:
         entries = filename.read_text().strip().split("\n\n")
+        indent = " " * 9  # width of "HH:MM:SS " — aligns continuation lines under the text
         print()
         for entry in entries:
-            if entry.strip():
-                print(entry.strip())
+            entry = entry.strip()
+            if entry:
+                print(format_entry(entry, indent))
                 print("─" * 40)
         print()
 
@@ -113,6 +137,7 @@ def settings(config):
 
 
 def read_multiline():
+    print("… multiline mode — empty line to save, Ctrl+C to cancel")
     lines = []
     while True:
         try:
